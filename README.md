@@ -13,7 +13,7 @@
 
 ## Demo
 
-> *Add a demo GIF here — see instructions at the bottom of this README*
+![FinQuery Demo](demo.gif)
 
 ---
 
