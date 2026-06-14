@@ -1,0 +1,32 @@
+# Core LLM & framework
+langchain==0.3.25
+langchain-groq==0.3.2
+langchain-community==0.3.24
+langchain-chroma==0.2.4
+groq==0.28.0
+
+# Vector DB
+chromadb==1.0.9
+
+# Embeddings & reranker (local, free)
+sentence-transformers==3.4.1
+torch==2.6.0
+
+# PDF parsing
+PyMuPDF==1.25.5
+
+# Keyword search
+rank_bm25==0.2.2
+
+# UI
+streamlit==1.45.1
+
+# Evaluation
+ragas==0.2.15
+datasets==3.6.0
+
+# Utilities
+python-dotenv==1.1.0
+tqdm==4.67.1
+numpy==1.26.4
+pandas==2.2.3
