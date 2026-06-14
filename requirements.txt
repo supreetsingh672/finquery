@@ -24,6 +24,7 @@ streamlit==1.45.1
 # Evaluation
 ragas==0.2.15
 datasets==3.6.0
+rapidfuzz==3.13.0
 
 # Utilities
 python-dotenv==1.1.0

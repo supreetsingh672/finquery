@@ -33,7 +33,10 @@ from ragas.metrics import (
 )
 from ragas.llms import LangchainLLMWrapper
 from ragas.embeddings import LangchainEmbeddingsWrapper
-from langchain_community.embeddings import HuggingFaceEmbeddings
+import warnings
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")
+    from langchain_community.embeddings import HuggingFaceEmbeddings
 from sentence_transformers import SentenceTransformer
 import pandas as pd
 
@@ -46,10 +49,12 @@ from src.generation.generator import generate_answer, get_citations
 from src.config import TOP_K_RERANK
 
 
-def load_docs_for_ragas(raw_dir: str, max_pages: int = 60) -> List:
-    """Load and split RBI PDFs for testset generation."""
-    from langchain.schema import Document
+def load_docs_for_ragas(raw_dir: str, max_pages_per_doc: int = 8) -> List:
+    """Load a small representative sample from each PDF for testset generation.
 
+    Keeping the chunk count low (< 80 total) avoids hitting Groq's free daily
+    token limit during RAGAS SummaryExtractor passes.
+    """
     all_docs = []
     splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
 
@@ -57,7 +62,7 @@ def load_docs_for_ragas(raw_dir: str, max_pages: int = 60) -> List:
         if fname.suffix != '.pdf':
             continue
         loader = PyMuPDFLoader(str(fname))
-        raw = loader.load()[:max_pages]
+        raw = loader.load()[:max_pages_per_doc]
         chunks = splitter.split_documents(raw)
         all_docs.extend(chunks)
         print(f"  Loaded {fname.name}: {len(chunks)} chunks")
@@ -104,7 +109,10 @@ def run_pipeline(question: str, embedder: SentenceTransformer) -> Dict:
 def evaluate_pipeline(testset_size: int = 10, output_path: str = "eval_results.json") -> None:
     print("\n=== FinQuery RAGAS Evaluation ===\n")
 
-    llm = ChatGroq(api_key=GROQ_API_KEY, model_name=GROQ_MODEL, temperature=0)
+    # Use a smaller model for RAGAS generation to save tokens on free tier
+    ragas_model = "llama-3.1-8b-instant"
+    llm = ChatGroq(api_key=GROQ_API_KEY, model_name=ragas_model, temperature=0)
+    print(f"Using {ragas_model} for testset generation (token-efficient)")
 
     print("[1/4] Loading documents for testset generation...")
     docs = load_docs_for_ragas(str(RAW_DOCS_PATH))
